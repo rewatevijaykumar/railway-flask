@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="{{url_for('static',filename='css/output.css')}}" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    </head>
+    <body class="font-body bg-white">
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <div class="flex justify-center items-center bg-yellow-300 p-4 md:py-10 w-full">
+            <h1 class="text-2xl md:text-5xl font-bold text-black uppercase text-center">Forecasting Deployment Using Flask</h1>
+        </div>
+        <div class="container p-1 lg:p-5 mx-auto">
+            <div class="flex justify-center items-center p-5 w-full">
+                <h1 class="text-xl md:text-4xl font-bold text-yellow-800 underline underline-offset-4">
+                    Gold Price Prediction
+                </h1>
+            </div>
+            <div class="flex flex-col justify-center items-center mx-auto"> 
+                <form class="my-5 flex flex-col lg:w-1/2 justify-center py-3 px-2 items-center rounded-lg shadow-lg bg-yellow-300 md:m-5" action="/predict" method='POST'>
+                    <div class="relative flex flex-col space-y-2 md:flex-row justify-center items-center pt-1">
+                        <label for="customRange2" class="form-label text-center text-lg md:mr-4">Enter Forecast Period: </label>
+                        <input type="text" name="days" class="form-control placeholder:text-center md:placeholder:text-left bg-white rounded-lg p-2" placeholder="1 to 365 days">
+                        
+                        <button type="submit" class="bg-yellow-700 hover:bg-yellow-600 text-white font-bold text-lg px-3 py-2 md:ml-4 rounded-lg">Forecast</button>
+                    </div>
+                </form>
+                {% if error %}
+                    <div class="flex mx-auto bg-red-100 rounded-lg p-4 lg:w-1/2 mb-4 text-sm md:text-lg text-red-700" role="alert">
+                        <svg class="w-5 h-5 inline mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            <span class="font-medium mr-1">Alert!</span> {{error}}
+                    </div>
+                {% endif %}
+            </div>
+        
+            {% if values %}
+            <div class="flex flex-col justify-center items-center">
+                <canvas id="myChart" class="w-full h-full"></canvas>
+                <div class="overflow-x-auto  max-w-xl my-5">
+                    <table class="table-auto w-full border border-yellow-400">
+                    <thead class="border-b">
+                        <tr class="bg-yellow-100">
+                            {% for col in column_names %}
+                            <th class="text-left p-4 font-medium">
+                                {{col}}
+                            </th>
+                        {% endfor %}
+                        </tr>
+                    </thead>
+                        <tbody>
+                            {% for info in data %}
+                <tr class="border-b hover:bg-yellow-50">
+               
+                <td class="p-4">
+                    {{info.index}} 
+                </td>                     
+                <td class="p-4">
+                    {{info.Date}} 
+                </td>                     
+                
+                <td class="p-4">
+                    {{info.Prediction}} 
+                </td>                     
+
+                </tr>
+                {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+            <!--footer-->
+            <div class="flex justify-center items-center m-10 p-5 border-y-4 border-yellow-400" >
+                <h4 class="inline-flex justify-center items-center text-lg font-semibold">Made with <svg class="h-5 w-5 text-red-600 mx-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                </svg>
+                by <a href="https://www.github.com/rewatevijaykumar" class="mx-1">Vijaykumar Rewate</a></h4>
+            </div>
+        </div>
+
+
+    
+    <script>
+        // Global parameters:
+// do not resize the chart canvas when its container does (keep at 600x400px)
+Chart.defaults.global.responsive = false;
+ 
+// define the chart data
+var chartData = {
+labels : [{% for item in labels %}
+"{{item}}",
+{% endfor %}],
+datasets : [{
+label: '{{ legend }}',
+fill: true,
+lineTension: 0.1,
+backgroundColor: "#fef9c3",
+borderColor: "#facc15",
+borderCapStyle: 'butt',
+borderDash: [],
+borderDashOffset: 0.0,
+borderJoinStyle: 'miter',
+pointBorderColor: "#facc15",
+pointBackgroundColor: "#fff",
+pointBorderWidth: 1,
+pointHoverRadius: 5,
+pointHoverBackgroundColor: "#facc15",
+pointHoverBorderColor: "#a16207",
+pointHoverBorderWidth: 2,
+pointRadius: 1,
+pointHitRadius: 10,
+data : [{% for item in values %}
+{{item}},
+{% endfor %}],
+spanGaps: false
+}]
+}
+ 
+// get chart canvas
+var ctx = document.getElementById("myChart").getContext("2d");
+ 
+// create the chart using the chart canvas
+var myChart = new Chart(ctx, {
+type: 'line',
+data: chartData,
+});
+    </script>
+    </body>
+</html>
